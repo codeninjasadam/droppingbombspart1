@@ -8,22 +8,24 @@ public class GameManager : MonoBehaviour
     private Spawner spawner;
     public GameObject title;
     private Vector2 screenBounds;
-    public GameObject playerPrefab;
+    public GameObject splash;
+
+    [Header("Player")]
     private GameObject player;
     private bool gameStarted = false;
-    public GameObject splash;
-    public GameObject scoreSystem;
+    public GameObject playerPrefab;
+    
     public Text scoreText;
     public int pointsWorth = 1;
     private int score;
-
 
     void Awake()
     {
         spawner = GameObject.Find("Spawner").GetComponent<Spawner>();
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         player = playerPrefab;
-        scoreText.enabled = false;
+        spawner.active = false;
+        //scoreText.enabled = false;
     }
 
     // Start is called before the first frame update
@@ -55,12 +57,13 @@ public class GameManager : MonoBehaviour
 
         foreach (GameObject bombObject in nextBomb)
         {
-            if (!gameStarted)
+            if (bombObject.transform.position.y < (-screenBounds.y - 12))
             {
                 Destroy(bombObject);
-            } else if (bombObject.transform.position.y < (-screenBounds.y))
+            } 
+            else if (bombObject.transform.position.y < (-screenBounds.y))
             {
-                scoreSystem.GetComponent<Score>().AddScore(pointsWorth);
+                //scoreSystem.GetComponent<Score>().AddScore(pointsWorth);
                 Destroy(bombObject);
             }
         }
@@ -71,21 +74,18 @@ public class GameManager : MonoBehaviour
         spawner.active = true;
         title.SetActive(false);
         splash.SetActive(false);
-        player = Instantiate(playerPrefab, new Vector3(0, 0, 0), playerPrefab.transform.rotation);
+        player = (GameObject)Instantiate(playerPrefab,new Vector3(0, 0, 0), playerPrefab.transform.rotation);
         gameStarted = true;
-
-        scoreText.enabled = true;
-        scoreSystem.GetComponent<Score>().score = 0;
-        scoreSystem.GetComponent<Score>().Start();
+        //scoreText.enabled = true;
+        //scoreSystem.GetComponent<Score>().score = 0;
+        //scoreSystem.GetComponent<Score>().Start();
     }
 
     void OnPlayerKilled()
     {
         spawner.active = false;
         gameStarted = false;
-
         splash.SetActive(true);
-
         //score = scoreSystem.GetComponent<Score>().score;
     }
 }
