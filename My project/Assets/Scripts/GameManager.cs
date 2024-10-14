@@ -15,7 +15,7 @@ public class GameManager : MonoBehaviour
     private GameObject player;
     private bool gameStarted = false;
     public GameObject playerPrefab;
-    
+    [Header ("Score")]
     public TMP_Text scoreText;
     public int pointsWorth = 1;
     private int score;
@@ -24,7 +24,7 @@ public class GameManager : MonoBehaviour
     {
         spawner = GameObject.Find("Spawner").GetComponent<Spawner>();
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
-       player = playerPrefab;
+        player = playerPrefab;
         spawner.active = false;
         scoreText.enabled = false;
     }
