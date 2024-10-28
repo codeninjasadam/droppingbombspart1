@@ -15,20 +15,31 @@ public class GameManager : MonoBehaviour
     private GameObject player;
     private bool gameStarted = false;
     public GameObject playerPrefab;
+
     [Header ("Score")]
     public TMP_Text scoreText;
     public int pointsWorth = 1;
     private int score;
+    
+    private int bestScore = 0;
+    public TMP_Text bestScoreText;
+    private bool beatBestScore;
+
+    public Color normalColor;
+    public Color bestScoreColor;
 
     private bool smokecleared = true;
 
     private void Awake()
     {
+       
         spawner = GameObject.Find("Spawner").GetComponent<Spawner>();
         screenBounds = Camera.main.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, Camera.main.transform.position.z));
         player = playerPrefab;
+
         spawner.active = false;
         scoreText.enabled = false;
+        bestScoreText.enabled = true;
     }
 
     // Start is called before the first frame update
@@ -37,6 +48,8 @@ public class GameManager : MonoBehaviour
         spawner.active = false;
         title.SetActive(true);
         splash.SetActive(false);
+        bestScore = PlayerPrefs.GetInt("BestScore");
+        bestScoreText.text = "Best Score: " + bestScore.ToString();
     }
 
     // Update is called once per frame
@@ -73,24 +86,44 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void OnPlayerKilled()
+    {
+            spawner.active = false;
+            gameStarted = false;
+            bestScoreText.enabled = true;
+            splash.SetActive(true);
+
+            Invoke("SplashScreen", 2);
+
+            if(score > bestScore)
+            {
+                bestScoreText.color = bestScoreColor;
+                bestScore = score;
+                PlayerPrefs.SetInt("BestScore", bestScore);
+                beatBestScore = true;
+                bestScoreText.text = "Best Score: " + bestScore.ToString();
+            }
+    }
+
     void ResetGame()
     {
+        bestScoreText.color = normalColor;
         spawner.active = true;
         title.SetActive(false);
         splash.SetActive(false);
+
         player = Instantiate(playerPrefab,new Vector3(0,0,0),playerPrefab.transform.rotation);
         gameStarted = true;
+
         scoreText.enabled = true;
         score = 0;
-        scoreText.text = "Score:" + score.ToString() ;
+
+        scoreText.text = "Score:" + score.ToString();
+        beatBestScore = false;
+        bestScoreText.enabled = false;
     }
 
-    void OnPlayerKilled()
-    {
-        spawner.active = false;
-        gameStarted = false;
-        Invoke("SplashScreen", 2f);
-    }
+    
     void SplashScreen()
     {
         smokecleared = true;
